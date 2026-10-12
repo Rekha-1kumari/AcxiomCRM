@@ -1,0 +1,311 @@
+@model AcxiomCRM.ViewModels.ReportFilterViewModel
+@{
+    ViewData["Title"] = "CRM Analytics & Reports";
+    Layout = "_Layout";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1 text-dark">Business Intelligence & Reports</h3>
+        <p class="text-muted small mb-0">Role-scoped executive reporting across sales pipeline, conversion, and operations</p>
+    </div>
+    <div>
+        <a asp-action="ExportCsv" asp-route-reportType="@Model.ReportType" class="btn btn-outline-success shadow-sm">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export to CSV
+        </a>
+    </div>
+</div>
+
+<!-- Report Navigation Tabs -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-2">
+        <ul class="nav nav-pills nav-fill gap-1">
+            <li class="nav-item">
+                <a class="nav-link @(Model.ReportType == "Pipeline" ? "active" : "")" asp-action="Index" asp-route-reportType="Pipeline">
+                    <i class="bi bi-bar-chart-line me-1"></i> Pipeline
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(Model.ReportType == "Customer" ? "active" : "")" asp-action="Index" asp-route-reportType="Customer">
+                    <i class="bi bi-people me-1"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(Model.ReportType == "Lead" ? "active" : "")" asp-action="Index" asp-route-reportType="Lead">
+                    <i class="bi bi-funnel me-1"></i> Leads
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(Model.ReportType == "Opportunity" ? "active" : "")" asp-action="Index" asp-route-reportType="Opportunity">
+                    <i class="bi bi-graph-up me-1"></i> Opportunities
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(Model.ReportType == "FollowUp" ? "active" : "")" asp-action="Index" asp-route-reportType="FollowUp">
+                    <i class="bi bi-calendar-check me-1"></i> Follow-Ups
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(Model.ReportType == "Conversion" ? "active" : "")" asp-action="Index" asp-route-reportType="Conversion">
+                    <i class="bi bi-percent me-1"></i> Conversion
+                </a>
+            </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link @(Model.ReportType == "UserActivity" ? "active" : "")" asp-action="Index" asp-route-reportType="UserActivity">
+                        <i class="bi bi-person-workspace me-1"></i> User Activity
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<!-- Active Report Content -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model.ReportType == "Pipeline")
+        {
+            <h5 class="fw-bold mb-3 text-dark">Stage-wise Sales Pipeline Distribution</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th>Pipeline Stage</th>
+                            <th>Active Deals</th>
+                            <th>Total Nominal Value</th>
+                            <th>Weighted Value (Risk-Adjusted)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var stage in Model.PipelineSummaries)
+                        {
+                            <tr>
+                                <td><span class="badge bg-light text-dark border">@stage.Stage</span></td>
+                                <td class="fw-bold">@stage.Count</td>
+                                <td class="fw-bold text-primary">₹@stage.TotalAmount.ToString("N0")</td>
+                                <td class="fw-semibold text-secondary">₹@stage.WeightedAmount.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td>Total Pipeline</td>
+                            <td>@Model.PipelineSummaries.Sum(s => s.Count)</td>
+                            <td class="text-primary">₹@Model.PipelineSummaries.Sum(s => s.TotalAmount).ToString("N0")</td>
+                            <td class="text-secondary">₹@Model.PipelineSummaries.Sum(s => s.WeightedAmount).ToString("N0")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else if (Model.ReportType == "Customer")
+        {
+            <h5 class="fw-bold mb-3 text-dark">Customer Account Report</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-light text-muted">
+                        <tr>
+                            <th>Code</th>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Account Owner</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.CustomerReports)
+                        {
+                            <tr>
+                                <td><span class="badge bg-light text-dark border font-monospace">@c.CustomerCode</span></td>
+                                <td class="fw-semibold text-dark">@c.CustomerName</td>
+                                <td>@c.Email</td>
+                                <td>@c.Phone</td>
+                                <td>@(c.CompanyName ?? "-")</td>
+                                <td><span class="badge @(c.Status == "Active" ? "bg-success" : "bg-secondary")">@c.Status</span></td>
+                                <td>@c.OwnerName</td>
+                                <td>@c.CreatedDate.ToString("d")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (Model.ReportType == "Lead")
+        {
+            <h5 class="fw-bold mb-3 text-dark">Lead Source & Qualification Report</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-light text-muted">
+                        <tr>
+                            <th>Code</th>
+                            <th>Lead Name</th>
+                            <th>Company</th>
+                            <th>Source</th>
+                            <th>Expected Value</th>
+                            <th>Status</th>
+                            <th>Representative</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in Model.LeadReports)
+                        {
+                            <tr>
+                                <td><span class="badge bg-light text-dark border font-monospace">@l.LeadCode</span></td>
+                                <td class="fw-semibold text-dark">@l.LeadName</td>
+                                <td>@(l.CompanyName ?? "-")</td>
+                                <td><span class="badge bg-light text-dark border">@l.Source</span></td>
+                                <td class="fw-bold text-dark">₹@l.ExpectedValue.ToString("N0")</td>
+                                <td><span class="badge @(l.Status == "Converted" ? "bg-success" : l.Status == "Lost" ? "bg-danger" : "bg-primary")">@l.Status</span></td>
+                                <td>@l.OwnerName</td>
+                                <td>@l.CreatedDate.ToString("d")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (Model.ReportType == "Opportunity")
+        {
+            <h5 class="fw-bold mb-3 text-dark">Opportunity Pipeline Detail Report</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-light text-muted">
+                        <tr>
+                            <th>Opportunity</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Stage</th>
+                            <th>Probability</th>
+                            <th>Weighted Amount</th>
+                            <th>Close Date</th>
+                            <th>Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Model.OpportunityReports)
+                        {
+                            <tr>
+                                <td class="fw-semibold text-dark">@o.OpportunityName</td>
+                                <td>@o.CustomerName</td>
+                                <td class="fw-bold text-primary">₹@o.Amount.ToString("N0")</td>
+                                <td><span class="badge bg-info text-dark">@o.Stage</span></td>
+                                <td>@o.Probability%</td>
+                                <td class="fw-semibold text-secondary">₹@o.WeightedAmount.ToString("N0")</td>
+                                <td>@o.ExpectedCloseDate.ToString("d")</td>
+                                <td>@o.OwnerName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (Model.ReportType == "FollowUp")
+        {
+            <h5 class="fw-bold mb-3 text-dark">Customer Follow-Up & SLA Performance Report</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-light text-muted">
+                        <tr>
+                            <th>Type</th>
+                            <th>Associated Entity</th>
+                            <th>Scheduled Date</th>
+                            <th>Remarks</th>
+                            <th>Status</th>
+                            <th>Assigned User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in Model.FollowUpReports)
+                        {
+                            <tr>
+                                <td><span class="badge bg-light text-dark border">@f.FollowUpType</span></td>
+                                <td class="fw-semibold">@f.RelatedTo</td>
+                                <td>@f.FollowUpDate.ToString("g")</td>
+                                <td>@f.Remarks</td>
+                                <td>
+                                    <span class="badge @(f.Status == "Completed" ? "bg-success" : f.Status == "Planned" ? "bg-warning text-dark" : "bg-danger")">
+                                        @f.Status
+                                    </span>
+                                    @if (f.IsOverdue)
+                                    {
+                                        <span class="badge bg-danger ms-1">Overdue</span>
+                                    }
+                                </td>
+                                <td>@f.AssignedUserName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (Model.ReportType == "Conversion")
+        {
+            <h5 class="fw-bold mb-3 text-dark">Lead-to-Customer Sales Conversion Funnel</h5>
+            <div class="row g-4 my-2">
+                <div class="col-md-3">
+                    <div class="card bg-light border-0 p-3 text-center">
+                        <span class="text-muted small">Total Captured Leads</span>
+                        <h2 class="fw-bold text-dark mt-2">@Model.ConversionSummary.TotalLeads</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success bg-opacity-10 border-0 p-3 text-center">
+                        <span class="text-success small fw-semibold">Successfully Converted</span>
+                        <h2 class="fw-bold text-success mt-2">@Model.ConversionSummary.ConvertedLeads</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning bg-opacity-10 border-0 p-3 text-center">
+                        <span class="text-warning small fw-semibold">Active In Pipeline</span>
+                        <h2 class="fw-bold text-dark mt-2">@Model.ConversionSummary.OpenLeads</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-primary bg-opacity-10 border-0 p-3 text-center">
+                        <span class="text-primary small fw-semibold">Overall Conversion Rate</span>
+                        <h2 class="fw-bold text-primary mt-2">@Model.ConversionSummary.ConversionRate.ToString("F1")%</h2>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (Model.ReportType == "UserActivity")
+        {
+            <h5 class="fw-bold mb-3 text-dark">Sales Team Productivity & Record Ownership</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th>Sales Representative</th>
+                            <th>Role</th>
+                            <th>Assigned Customers</th>
+                            <th>Assigned Leads</th>
+                            <th>Active Deals</th>
+                            <th>Interactions Logged</th>
+                            <th>Follow-ups Scheduled</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model.UserActivities)
+                        {
+                            <tr>
+                                <td class="fw-bold text-dark">@u.UserName</td>
+                                <td><span class="badge bg-light text-dark border">@u.Role</span></td>
+                                <td>@u.CustomersCount</td>
+                                <td>@u.LeadsCount</td>
+                                <td>@u.OpportunitiesCount</td>
+                                <td>@u.ActivitiesCount</td>
+                                <td>@u.FollowUpsCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

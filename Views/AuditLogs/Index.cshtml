@@ -1,0 +1,147 @@
+@model IEnumerable<AcxiomCRM.Models.AuditLog>
+@{
+    ViewData["Title"] = "Security Audit Log";
+    Layout = "_Layout";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1 text-dark">Security & System Audit Log</h3>
+        <p class="text-muted small mb-0">Total @ViewBag.TotalCount immutable audit trail records tracked</p>
+    </div>
+    <div>
+        <span class="badge bg-danger px-3 py-2">
+            <i class="bi bi-shield-lock-fill me-1"></i> Append-Only Audit Store
+        </span>
+    </div>
+</div>
+
+<!-- Filter Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="userFilter" value="@ViewBag.UserFilter" class="form-control" placeholder="Search by user or email..." />
+            </div>
+            <div class="col-md-2">
+                <select name="moduleFilter" class="form-select">
+                    <option value="">All Modules</option>
+                    <option value="Auth" selected="@(ViewBag.ModuleFilter == "Auth")">Auth / Security</option>
+                    <option value="Customer" selected="@(ViewBag.ModuleFilter == "Customer")">Customer</option>
+                    <option value="Lead" selected="@(ViewBag.ModuleFilter == "Lead")">Lead</option>
+                    <option value="Opportunity" selected="@(ViewBag.ModuleFilter == "Opportunity")">Opportunity</option>
+                    <option value="FollowUp" selected="@(ViewBag.ModuleFilter == "FollowUp")">FollowUp</option>
+                    <option value="Activity" selected="@(ViewBag.ModuleFilter == "Activity")">Activity</option>
+                    <option value="User" selected="@(ViewBag.ModuleFilter == "User")">User</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="actionFilter" class="form-select">
+                    <option value="">All Actions</option>
+                    <option value="Login" selected="@(ViewBag.ActionFilter == "Login")">Login</option>
+                    <option value="Failed Login" selected="@(ViewBag.ActionFilter == "Failed Login")">Failed Login</option>
+                    <option value="Logout" selected="@(ViewBag.ActionFilter == "Logout")">Logout</option>
+                    <option value="Create" selected="@(ViewBag.ActionFilter == "Create")">Create</option>
+                    <option value="Update" selected="@(ViewBag.ActionFilter == "Update")">Update</option>
+                    <option value="Delete" selected="@(ViewBag.ActionFilter == "Delete")">Delete</option>
+                    <option value="Role Change" selected="@(ViewBag.ActionFilter == "Role Change")">Role Change</option>
+                    <option value="Security" selected="@(ViewBag.ActionFilter == "Security")">Security</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control" placeholder="From Date" />
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control" placeholder="To Date" />
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Audit Log Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 font-monospace small">
+                <thead class="table-light text-muted">
+                    <tr>
+                        <th>Timestamp (UTC)</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Module</th>
+                        <th>Record ID</th>
+                        <th>Details / Changes</th>
+                        <th>Client IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var log in Model)
+                        {
+                            var actionClass = log.Action switch
+                            {
+                                "Login" => "bg-success",
+                                "Failed Login" => "bg-danger",
+                                "Logout" => "bg-secondary",
+                                "Create" => "bg-primary",
+                                "Update" => "bg-info text-dark",
+                                "Delete" => "bg-warning text-dark",
+                                "Role Change" => "bg-danger",
+                                _ => "bg-dark"
+                            };
+
+                            <tr>
+                                <td>@log.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    <div class="fw-bold">@(log.UserName ?? "System")</div>
+                                </td>
+                                <td><span class="badge @actionClass">@log.Action</span></td>
+                                <td><span class="badge bg-light text-dark border">@log.EntityName</span></td>
+                                <td>@(log.RecordId ?? "-")</td>
+                                <td style="max-width: 320px;">
+                                    @if (!string.IsNullOrEmpty(log.NewValue))
+                                    {
+                                        <div class="text-truncate">@log.NewValue</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(log.OldValue))
+                                    {
+                                        <div class="text-muted small text-truncate">Prev: @log.OldValue</div>
+                                    }
+                                </td>
+                                <td><code>@log.IpAddress</code></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-shield-x fs-2 d-block mb-2 text-secondary"></i>
+                                No audit records found for specified criteria.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (totalPages > 1)
+    {
+        <div class="card-footer bg-white border-0 py-3">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                @for (int p = 1; p <= totalPages; p++)
+                {
+                    <li class="page-item @(p == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-userFilter="@ViewBag.UserFilter" asp-route-moduleFilter="@ViewBag.ModuleFilter" asp-route-actionFilter="@ViewBag.ActionFilter">@p</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>

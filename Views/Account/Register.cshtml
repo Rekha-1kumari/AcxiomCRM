@@ -1,0 +1,73 @@
+@model AcxiomCRM.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register User";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center my-4">
+    <div class="col-md-7 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3">
+                        <i class="bi bi-person-plus-fill fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">Create CRM Account</h3>
+                    <p class="text-muted small">Register a new user with role-based access</p>
+                </div>
+
+                <form asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="John Doe" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="Email" class="form-control" placeholder="john.doe@acxiomcrm.com" autocomplete="username" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label fw-semibold small text-muted"></label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="SalesExecutive">Sales Executive (Manage assigned records)</option>
+                            <option value="Manager">Manager (Team pipeline & reports)</option>
+                            <option value="Admin">Admin (Full administration & audit)</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Min 8 chars, uppercase, digit, special" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ConfirmPassword" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm your password" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+                        <i class="bi bi-person-check-fill me-1"></i> Register Account
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-2 border-top">
+                    <span class="text-muted small">Already have an account?</span>
+                    <a asp-action="Login" class="small fw-semibold text-primary text-decoration-none ms-1">Sign in here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

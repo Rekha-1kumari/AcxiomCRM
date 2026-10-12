@@ -1,0 +1,64 @@
+@model AcxiomCRM.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Log In";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center my-4">
+    <div class="col-md-7 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3">
+                        <i class="bi bi-shield-lock-fill fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">Sign In to AcxiomCRM</h3>
+                    <p class="text-muted small">Enter your credentials to access your sales workspace</p>
+                </div>
+
+                <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold small text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control border-start-0" placeholder="name@company.com" autocomplete="username" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label asp-for="Password" class="form-label fw-semibold small text-muted"></label>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key"></i></span>
+                            <input asp-for="Password" type="password" class="form-control border-start-0" placeholder="••••••••" autocomplete="current-password" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-2 border-top">
+                    <span class="text-muted small">Need an account?</span>
+                    <a asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="small fw-semibold text-primary text-decoration-none ms-1">Register new user</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
