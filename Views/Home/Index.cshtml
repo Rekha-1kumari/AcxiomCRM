@@ -1,8 +1,60 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "AcxiomCRM - Enterprise Sales Platform";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="py-5 text-center">
+    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle p-4 mb-4">
+        <i class="bi bi-diagram-3-fill display-4"></i>
+    </div>
+    <h1 class="display-5 fw-bold text-dark mb-3">AcxiomCRM Enterprise Platform</h1>
+    <p class="lead text-muted mx-auto col-lg-7 mb-4">
+        Unified relationship management, pipeline orchestration, lead-to-opportunity conversion, and real-time sales intelligence.
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-lg px-4 shadow-sm">
+                <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-4 shadow-sm">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary btn-lg px-4">
+                Register
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm p-3">
+            <div class="card-body">
+                <div class="text-primary mb-3"><i class="bi bi-funnel fs-2"></i></div>
+                <h5 class="fw-bold text-dark">Lead Qualification</h5>
+                <p class="text-muted small">Capture prospects across web, referral, and partner channels. Convert qualified leads into verified customer accounts.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm p-3">
+            <div class="card-body">
+                <div class="text-success mb-3"><i class="bi bi-graph-up-arrow fs-2"></i></div>
+                <h5 class="fw-bold text-dark">Pipeline Management</h5>
+                <p class="text-muted small">Track multi-stage sales opportunities with calculated risk weighting, stage milestones, and close date forecasting.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm p-3">
+            <div class="card-body">
+                <div class="text-info mb-3"><i class="bi bi-shield-check fs-2"></i></div>
+                <h5 class="fw-bold text-dark">Audit & Security</h5>
+                <p class="text-muted small">Role-based data access scopes, password policies, account lockout protection, and immutable audit trails.</p>
+            </div>
+        </div>
+    </div>
 </div>

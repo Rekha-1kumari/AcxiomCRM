@@ -1,6 +1,17 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Security & Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="card border-0 shadow-sm p-4 my-4">
+    <h3 class="fw-bold text-dark mb-3">Security & Privacy Governance</h3>
+    <p class="text-muted">
+        AcxiomCRM adheres to enterprise data protection and privacy standards. Access to records is restricted via role-based access control (RBAC), and all critical data modifications are logged to an immutable audit store.
+    </p>
+
+    <h5 class="fw-bold text-dark mt-3">Data Protection Safeguards</h5>
+    <ul class="text-secondary small">
+        <li><strong>Role Scopes:</strong> Access to customers, leads, opportunities, and activities is enforced at the server level.</li>
+        <li><strong>Credential Security:</strong> Passwords are encrypted using adaptive PBKDF2 hashing; plain-text credentials are never persisted.</li>
+        <li><strong>Auditability:</strong> Authentication events, user status changes, and CRM transactions are audited with timestamp and client metadata.</li>
+    </ul>
+</div>
